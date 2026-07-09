@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Button } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, FlatList } from 'react-native';
 
 const INITIAL_CATEGORIES = [
   { id: 'places', name: 'Places', icon: '📍' },
@@ -16,7 +16,6 @@ export default function HomeScreen({ navigation }) {
     if (!newCategoryName.trim()) return;
     const newId = newCategoryName.toLowerCase().replace(/\s+/g, '-');
     
-    // Check if category already exists
     if (categories.some((c) => c.id === newId)) {
       alert('Category already exists!');
       return;
@@ -25,39 +24,54 @@ export default function HomeScreen({ navigation }) {
     const newCategory = {
       id: newId,
       name: newCategoryName.trim(),
-      icon: '📁', // default folder icon
+      icon: '📁',
     };
 
     setCategories([...categories, newCategory]);
     setNewCategoryName('');
   };
 
+  const renderCategoryCard = ({ item }) => (
+    <TouchableOpacity
+      style={styles.categoryCard}
+      onPress={() => navigation.navigate('Category', {
+        categoryId: item.id,
+        categoryName: item.name
+      })}
+    >
+      <Text style={styles.categoryIcon}>{item.icon}</Text>
+      <Text style={styles.categoryName}>{item.name}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.subtitle}>Select a category to view your saved items:</Text>
+      <Text style={styles.headerTitle}>Welcome to Memento</Text>
+      <Text style={styles.subtitle}>Select a folder to view your saved links:</Text>
       
-      {categories.map((category) => (
-        <TouchableOpacity
-          key={category.id}
-          style={styles.categoryButton}
-          onPress={() => navigation.navigate('Category', {
-            categoryId: category.id,
-            categoryName: category.name
-          })}
-        >
-          <Text style={styles.categoryText}>{category.icon} {category.name}</Text>
-        </TouchableOpacity>
-      ))}
+      <FlatList
+        data={categories}
+        keyExtractor={(item) => item.id}
+        renderItem={renderCategoryCard}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.listContent}
+      />
 
-      {/* Add Category Section (Logic Only) */}
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="New Category Name"
-          value={newCategoryName}
-          onChangeText={setNewCategoryName}
-        />
-        <Button title="Add Category" onPress={handleAddCategory} />
+      <View style={styles.addCategoryContainer}>
+        <Text style={styles.sectionTitle}>Add New Folder</Text>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. Recipes, Workout..."
+            placeholderTextColor="#9CA3AF"
+            value={newCategoryName}
+            onChangeText={setNewCategoryName}
+          />
+          <TouchableOpacity style={styles.addButton} onPress={handleAddCategory}>
+            <Text style={styles.addButtonText}>Add</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -66,34 +80,91 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    backgroundColor: '#F9FAFB', // Soft premium off-white
+  },
+  headerTitle: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#111827', // Charcoal black
+    marginBottom: 4,
   },
   subtitle: {
+    fontSize: 15,
+    color: '#6B7280', // Muted gray
+    marginBottom: 24,
+  },
+  listContent: {
+    paddingBottom: 20,
+  },
+  row: {
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  categoryCard: {
+    width: '47%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  categoryIcon: {
+    fontSize: 32,
+    marginBottom: 12,
+  },
+  categoryName: {
     fontSize: 16,
-    color: '#666',
-    marginBottom: 20,
+    fontWeight: '600',
+    color: '#374151',
   },
-  categoryButton: {
-    padding: 15,
-    backgroundColor: '#f0f0f0',
-    marginBottom: 10,
-    borderRadius: 8,
-  },
-  categoryText: {
-    fontSize: 18,
-  },
-  inputContainer: {
-    marginTop: 20,
+  addCategoryContainer: {
+    paddingVertical: 20,
     borderTopWidth: 1,
-    borderColor: '#eee',
-    paddingTop: 20,
+    borderTopColor: '#F3F4F6',
+    backgroundColor: '#F9FAFB',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#374151',
+    marginBottom: 12,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   input: {
+    flex: 1,
+    height: 48,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
+    borderColor: '#D1D5DB',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    fontSize: 15,
+    color: '#111827',
+    marginRight: 10,
+  },
+  addButton: {
+    height: 48,
+    backgroundColor: '#374151', // Dark slate gray (non-neon primary)
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '600',
   },
 });

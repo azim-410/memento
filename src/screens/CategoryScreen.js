@@ -24,21 +24,30 @@ export default function CategoryScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.subtitle}>Saved items in {categoryName}:</Text>
+      <Text style={styles.subtitle}>Saved items in this folder:</Text>
       
       {items.length === 0 ? (
-        <Text style={styles.noItemsText}>No items saved in this folder yet.</Text>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyIcon}>📂</Text>
+          <Text style={styles.noItemsText}>No items saved here yet.</Text>
+          <Text style={styles.emptySubtext}>Share links directly to Memento to fill this folder!</Text>
+        </View>
       ) : (
         <FlatList
           data={items}
           keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.itemButton}
+              style={styles.itemCard}
               onPress={() => navigation.navigate('Detail', { itemId: item.title, item })}
             >
-              <Text style={styles.itemTitle}>{item.title}</Text>
-              <Text style={styles.itemNote} numberOfLines={1}>{item.note}</Text>
+              <View style={styles.cardHeader}>
+                <Text style={styles.itemTitle}>{item.title}</Text>
+                <Text style={styles.arrowIcon}>›</Text>
+              </View>
+              {item.note ? <Text style={styles.itemNote} numberOfLines={2}>{item.note}</Text> : null}
+              {item.link ? <Text style={styles.itemLink} numberOfLines={1}>{item.link}</Text> : null}
             </TouchableOpacity>
           )}
         />
@@ -57,48 +66,101 @@ export default function CategoryScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    backgroundColor: '#F9FAFB', // Soft off-white background
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 20,
+    fontSize: 15,
+    color: '#6B7280',
+    marginBottom: 16,
   },
-  noItemsText: {
-    fontSize: 16,
-    color: '#999',
-    textAlign: 'center',
-    marginTop: 40,
-    marginBottom: 40,
+  listContent: {
+    paddingBottom: 20,
   },
-  itemButton: {
-    padding: 15,
-    backgroundColor: '#f9f9f9',
+  itemCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 8,
-    marginBottom: 10,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
   },
   itemTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#111827',
+    flex: 1,
+    marginRight: 8,
+  },
+  arrowIcon: {
+    fontSize: 20,
+    color: '#9CA3AF',
+    fontWeight: '300',
   },
   itemNote: {
     fontSize: 14,
-    color: '#666',
-    marginTop: 4,
+    color: '#4B5563',
+    lineHeight: 20,
+    marginBottom: 6,
+  },
+  itemLink: {
+    fontSize: 13,
+    color: '#6B7280',
+    textDecorationLine: 'underline',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+    opacity: 0.5,
+  },
+  noItemsText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#374151',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 20,
   },
   addButton: {
-    padding: 15,
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
+    height: 52,
+    backgroundColor: '#374151', // Dark slate gray (non-neon primary)
+    borderRadius: 12,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 16,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   addButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
-    color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });

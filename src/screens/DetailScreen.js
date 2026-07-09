@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 
 export default function DetailScreen({ route, navigation }) {
   const { item, categoryId, isNew } = route.params || {};
@@ -23,91 +23,152 @@ export default function DetailScreen({ route, navigation }) {
     );
   };
 
+  const isEditable = !!isNew;
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Title</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="e.g. Eiffel Tower, Favorite Song..."
-        value={title}
-        onChangeText={setTitle}
-        editable={!!isNew}
-      />
+    <KeyboardAvoidingView 
+      style={styles.keyboardContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Title</Text>
+          <TextInput
+            style={[styles.input, !isEditable && styles.disabledInput]}
+            placeholder="e.g. Eiffel Tower, Favorite Song..."
+            placeholderTextColor="#9CA3AF"
+            value={title}
+            onChangeText={setTitle}
+            editable={isEditable}
+          />
+        </View>
 
-      <Text style={styles.label}>Link / URL</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="e.g. https://instagram.com/p/..."
-        value={link}
-        onChangeText={setLink}
-        editable={!!isNew}
-      />
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Link / URL</Text>
+          <TextInput
+            style={[styles.input, !isEditable && styles.disabledInput]}
+            placeholder="e.g. https://instagram.com/p/..."
+            placeholderTextColor="#9CA3AF"
+            value={link}
+            onChangeText={setLink}
+            editable={isEditable}
+            autoCapitalize="none"
+            keyboardType="url"
+          />
+        </View>
 
-      <Text style={styles.label}>Notes</Text>
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        placeholder="Why did you save this?"
-        value={note}
-        onChangeText={setNote}
-        multiline
-        numberOfLines={4}
-        editable={!!isNew}
-      />
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Notes</Text>
+          <TextInput
+            style={[styles.input, styles.textArea, !isEditable && styles.disabledInput]}
+            placeholder="Why did you save this?"
+            placeholderTextColor="#9CA3AF"
+            value={note}
+            onChangeText={setNote}
+            multiline
+            numberOfLines={4}
+            editable={isEditable}
+          />
+        </View>
 
-      {isNew ? (
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save Item</Text>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity 
-          style={[styles.saveButton, styles.closeButton]} 
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.saveButtonText}>Back to List</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+        <View style={styles.buttonContainer}>
+          {isEditable ? (
+            <>
+              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                <Text style={styles.saveButtonText}>Save Item</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.cancelButton} 
+                onPress={() => navigation.goBack()}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <TouchableOpacity 
+              style={styles.cancelButton} 
+              onPress={() => navigation.goBack()}
+            >
+              <Text style={styles.cancelButtonText}>Back to List</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  keyboardContainer: {
     flex: 1,
+    backgroundColor: '#F9FAFB',
+  },
+  container: {
     padding: 20,
-    backgroundColor: '#fff',
+    paddingTop: 24,
+  },
+  formGroup: {
+    marginBottom: 20,
   },
   label: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#374151',
     marginBottom: 8,
-    color: '#333',
   },
   input: {
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 20,
-    backgroundColor: '#f9f9f9',
+    borderColor: '#D1D5DB',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: '#111827',
+  },
+  disabledInput: {
+    backgroundColor: '#F3F4F6',
+    borderColor: '#E5E7EB',
+    color: '#4B5563',
   },
   textArea: {
-    height: 100,
+    height: 120,
     textAlignVertical: 'top',
+    paddingTop: 12,
   },
-  saveButton: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
+  buttonContainer: {
     marginTop: 10,
   },
-  closeButton: {
-    backgroundColor: '#666',
+  saveButton: {
+    height: 50,
+    backgroundColor: '#374151', // Dark slate gray (non-neon primary)
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   saveButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+  },
+  cancelButton: {
+    height: 50,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    color: '#374151',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
